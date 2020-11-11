@@ -235,7 +235,7 @@
   #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
-#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, BQ_LCD_SMART_CONTROLLER)
+#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING, BQ_LCD_SMART_CONTROLLER)
 
   #define IS_RRD_FG_SC 1
 
@@ -341,7 +341,7 @@
   #define DOGLCD
   #define IS_ULTIPANEL 1
   #define DELAYED_BACKLIGHT_INIT
-#elif ENABLED(TFT_LVGL_UI)
+#elif HAS_TFT_LVGL_UI
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
@@ -675,6 +675,77 @@
   #define HAS_BED_PROBE 1
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if NUM_RUNOUT_SENSORS >= 1
+    #ifndef FIL_RUNOUT1_STATE
+      #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT1_PULL
+      #define FIL_RUNOUT1_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 2
+    #ifndef FIL_RUNOUT2_STATE
+      #define FIL_RUNOUT2_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT2_PULL
+      #define FIL_RUNOUT2_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 3
+    #ifndef FIL_RUNOUT3_STATE
+      #define FIL_RUNOUT3_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT3_PULL
+      #define FIL_RUNOUT3_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 4
+    #ifndef FIL_RUNOUT4_STATE
+      #define FIL_RUNOUT4_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT4_PULL
+      #define FIL_RUNOUT4_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 5
+    #ifndef FIL_RUNOUT5_STATE
+      #define FIL_RUNOUT5_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT5_PULL
+      #define FIL_RUNOUT5_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 6
+    #ifndef FIL_RUNOUT6_STATE
+      #define FIL_RUNOUT6_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT6_PULL
+      #define FIL_RUNOUT6_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 7
+    #ifndef FIL_RUNOUT7_STATE
+      #define FIL_RUNOUT7_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT7_PULL
+      #define FIL_RUNOUT7_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 8
+    #ifndef FIL_RUNOUT8_STATE
+      #define FIL_RUNOUT8_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT8_PULL
+      #define FIL_RUNOUT8_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+#endif // FILAMENT_RUNOUT_SENSOR
+
+#if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+  #undef PROBE_MANUALLY
+#endif
+
 #if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
 #endif
@@ -747,6 +818,7 @@
   #define HAS_PROBING_PROCEDURE 1
 #endif
 #if !HAS_LEVELING
+  #undef PROBE_MANUALLY
   #undef RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -777,78 +849,71 @@
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
   #define HAS_USB_SERIAL 1
 #endif
+#if SERIAL_PORT_2 == -2
+  #define HAS_ETHERNET 1
+#endif
 
-// Fallback Stepper Driver types
+// Fallback Stepper Driver types that don't depend on Configuration_adv.h
 #ifndef X_DRIVER_TYPE
-  #define X_DRIVER_TYPE A4988
+  #define X_DRIVER_TYPE  A4988
 #endif
-#ifndef Y_DRIVER_TYPE
-  #define Y_DRIVER_TYPE A4988
-#endif
-#ifndef Z_DRIVER_TYPE
-  #define Z_DRIVER_TYPE A4988
-#endif
-#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
-  #undef X2_DRIVER_TYPE
-#elif !defined(X2_DRIVER_TYPE)
+#ifndef X2_DRIVER_TYPE
   #define X2_DRIVER_TYPE A4988
 #endif
-#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
-  #undef Y2_DRIVER_TYPE
-#elif !defined(Y2_DRIVER_TYPE)
+#ifndef Y_DRIVER_TYPE
+  #define Y_DRIVER_TYPE  A4988
+#endif
+#ifndef Y2_DRIVER_TYPE
   #define Y2_DRIVER_TYPE A4988
 #endif
-#if NUM_Z_STEPPER_DRIVERS < 2
-  #undef Z2_DRIVER_TYPE
-#elif !defined(Z2_DRIVER_TYPE)
+#ifndef Z_DRIVER_TYPE
+  #define Z_DRIVER_TYPE  A4988
+#endif
+#ifndef Z2_DRIVER_TYPE
   #define Z2_DRIVER_TYPE A4988
 #endif
-#if NUM_Z_STEPPER_DRIVERS < 3
-  #undef Z3_DRIVER_TYPE
-#elif !defined(Z3_DRIVER_TYPE)
+#ifndef Z3_DRIVER_TYPE
   #define Z3_DRIVER_TYPE A4988
 #endif
-#if NUM_Z_STEPPER_DRIVERS < 4
-  #undef Z4_DRIVER_TYPE
-#elif !defined(Z4_DRIVER_TYPE)
+#ifndef Z4_DRIVER_TYPE
   #define Z4_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 1
+#if E_STEPPERS <= 0
   #undef E0_DRIVER_TYPE
 #elif !defined(E0_DRIVER_TYPE)
   #define E0_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 2
+#if E_STEPPERS <= 1
   #undef E1_DRIVER_TYPE
 #elif !defined(E1_DRIVER_TYPE)
   #define E1_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 3
+#if E_STEPPERS <= 2
   #undef E2_DRIVER_TYPE
 #elif !defined(E2_DRIVER_TYPE)
   #define E2_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 4
+#if E_STEPPERS <= 3
   #undef E3_DRIVER_TYPE
 #elif !defined(E3_DRIVER_TYPE)
   #define E3_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 5
+#if E_STEPPERS <= 4
   #undef E4_DRIVER_TYPE
 #elif !defined(E4_DRIVER_TYPE)
   #define E4_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 6
+#if E_STEPPERS <= 5
   #undef E5_DRIVER_TYPE
 #elif !defined(E5_DRIVER_TYPE)
   #define E5_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 7
+#if E_STEPPERS <= 6
   #undef E6_DRIVER_TYPE
 #elif !defined(E6_DRIVER_TYPE)
   #define E6_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 8
+#if E_STEPPERS <= 7
   #undef E7_DRIVER_TYPE
 #elif !defined(E7_DRIVER_TYPE)
   #define E7_DRIVER_TYPE A4988
@@ -964,16 +1029,16 @@
 // FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
 #if ENABLED(TFT_INTERFACE_FSMC)
   #define HAS_FSMC_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
+  #if TFT_SCALED_DOGLCD
     #define HAS_FSMC_GRAPHICAL_TFT 1
-  #elif ENABLED(TFT_LVGL_UI)
+  #elif HAS_TFT_LVGL_UI
     #define HAS_TFT_LVGL_UI_FSMC 1
   #endif
 #elif ENABLED(TFT_INTERFACE_SPI)
   #define HAS_SPI_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
+  #if TFT_SCALED_DOGLCD
     #define HAS_SPI_GRAPHICAL_TFT 1
-  #elif ENABLED(TFT_LVGL_UI)
+  #elif HAS_TFT_LVGL_UI
     #define HAS_TFT_LVGL_UI_SPI 1
   #endif
 #endif
